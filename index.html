@@ -6,16 +6,18 @@
     <title>Hội Anh Em Lên Đỉnh Cùng Nhau</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .ql-toolbar.ql-snow { border-color: #374151 !important; background: #1f2937; border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;}
-        .ql-container.ql-snow { border-color: #374151 !important; background: #111827; border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; font-size: 16px; color: #f3f4f6;}
-        .prose img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 1rem 0; }
+        /* Style để các thẻ HTML hiển thị chuẩn trong vùng nội dung */
+        .content-area textfield, .content-area p { margin-bottom: 1rem; }
+        .content-area ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .content-area ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .content-area a { color: #22d3ee; text-decoration: underline; }
+        .content-area img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1rem 0; display: block; }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col justify-between">
 
     <header class="border-b border-gray-800 bg-gray-900/60 backdrop-blur sticky top-0 z-40">
         <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -31,15 +33,38 @@
     <main class="max-w-5xl w-full mx-auto px-4 py-8 flex-grow space-y-12">
         
         <section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 md:p-8 shadow-2xl relative">
-            <div id="dynamic-header" class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
-                <h2 id="main-view-title" class="text-xl font-bold text-cyan-400">🏠 Giới Thiệu Chung</h2>
-                <div id="member-action-buttons" class="hidden gap-2">
-                    <button id="btn-edit-member" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs rounded-md">Sửa profile</button>
-                    <button id="btn-delete-member" class="px-3 py-1 bg-red-950/50 hover:bg-red-900/50 border border-red-800 text-xs text-red-400 rounded-md">Xóa Thành Viên</button>
+            
+            <div id="view-mode">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
+                    <h2 id="main-view-title" class="text-xl font-bold text-cyan-400">🏠 Giới Thiệu Chung</h2>
+                    <div id="member-action-buttons" class="hidden gap-2">
+                        <button id="btn-edit-member" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs rounded-md">Sửa profile</button>
+                        <button id="btn-delete-member" class="px-3 py-1 bg-red-950/50 hover:bg-red-900/50 border border-red-800 text-xs text-red-400 rounded-md">Xóa Thành Viên</button>
+                    </div>
+                </div>
+                <div id="main-view-content" class="content-area text-gray-300 leading-relaxed min-h-[100px]">
+                    Đang tải dữ liệu anh em...
                 </div>
             </div>
-            <div id="main-view-content" class="prose prose-invert max-w-none text-gray-300 leading-relaxed min-h-[100px]">
-                Đang tải dữ liệu anh em...
+
+            <div id="editor-mode" class="hidden space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                    <h3 id="editor-title" class="text-lg font-bold text-amber-400">📝 Đang chỉnh sửa...</h3>
+                    <button onclick="closeEditor()" class="text-sm bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-lg">Hủy</button>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 bg-gray-950 p-2 rounded-lg border border-gray-800 text-xs text-gray-400">
+                    <button onclick="insertTool('link')" class="px-2 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded text-cyan-400 font-semibold">+ Thêm Link</button>
+                    <button onclick="insertTool('image')" class="px-2 py-1 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded text-green-400 font-semibold">+ Chèn Ảnh (Link)</button>
+                    <span class="text-gray-600 self-center">| Mẹo: Bạn có thể gõ trực tiếp code HTML nếu muốn đổi màu/font chữ!</span>
+                </div>
+
+                <textarea id="notepad-textarea" class="w-full h-80 bg-gray-950 border border-gray-800 rounded-xl p-4 text-gray-100 font-mono text-sm focus:outline-none focus:border-cyan-500 placeholder-gray-700" placeholder="Nhập nội dung giới thiệu ở đây... Có thể dùng các nút hỗ trợ chèn link/ảnh ở trên hoặc viết chữ thường thoải mái."></textarea>
+                
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeEditor()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-semibold transition">Hủy bỏ</button>
+                    <button onclick="saveData()" class="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-sm font-semibold rounded-xl transition shadow-lg shadow-cyan-500/10">Lưu lại ngay</button>
+                </div>
             </div>
         </section>
 
@@ -61,44 +86,19 @@
                 <h2 class="text-lg font-bold flex items-center gap-2">
                     <span class="w-2 h-6 bg-amber-500 rounded-full"></span> Báo Người Gõ (Tips & Mẹo Tin Học)
                 </h2>
-                <button onclick="openEditor('tip')" class="px-4 py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 font-semibold text-sm rounded-xl transition">
-                    + Đăng mẹo mới
-                </button>
-            </div>
-            <div id="tips-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 </div>
+            <div id="tips-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <p class="text-xs text-gray-600 py-2">Hệ thống kho kiến thức tự động cập nhật.</p>
+            </div>
         </section>
     </main>
 
     <footer class="border-t border-gray-900 bg-gray-950 py-6 text-center text-xs text-gray-500">
-        &copy; 2026 Hội Anh Em Lên Đỉnh Cùng Nhau. Bản quyền thuộc về niềm tin của anh em.
+        &copy; 2026 Hội Anh Em Lên Đỉnh Cùng Nhau.
     </footer>
 
-    <div id="editor-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-gray-900 border border-gray-800 w-full max-w-3xl rounded-2xl shadow-2xl p-6 space-y-4 flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
-                <h3 id="modal-title" class="text-lg font-bold text-gray-200">Trình soạn thảo</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white text-xl">&times;</button>
-            </div>
-            
-            <div id="extra-inputs" class="space-y-3 hidden">
-                <input type="text" id="input-title" placeholder="Nhập tiêu đề mẹo / kiến thức..." class="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-cyan-500">
-                <input type="text" id="input-author" placeholder="Ai gõ mẹo này? (Tên bạn)..." class="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-cyan-500">
-            </div>
-
-            <div class="flex-grow overflow-y-auto min-h-[250px] flex flex-col">
-                <div id="editor-container" class="flex-grow"></div>
-            </div>
-
-            <div class="flex justify-end gap-3 pt-2 border-t border-gray-800">
-                <button onclick="closeModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-semibold transition">Hủy</button>
-                <button onclick="saveData()" class="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-sm font-semibold rounded-xl transition shadow-lg shadow-cyan-500/10">Lưu lại ngay</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // 1. Cấu hình Supabase (Thay thế thông tin dự án của bạn tại đây)
+        // 1. CẤU HÌNH SUPABASE (ĐIỀN LẠI THÔNG TIN CỦA BẠN VÀO ĐÂY)
         const SUPABASE_URL = "https://hffdlldutogxyfuojvbz.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmZmRsbGR1dG9neHlmdW9qdmJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NDU2NzQsImV4cCI6MjA5NjAyMTY3NH0.nYNqoJkMV5_MiJA1jtdsStjNG2nhCLYbxKZzc5naBEY";
         
@@ -106,44 +106,25 @@
         const MASTER_PASSWORD = "ontop123";
 
         // Biến trạng thái toàn cục
-        let quill;
-        let currentMode = ''; // 'general', 'member', 'tip'
+        let currentMode = ''; // 'general' hoặc 'member'
         let currentId = null;
         let cachedGeneralIntro = '';
 
-        // Khởi tạo trang web khi load xong
         window.addEventListener('DOMContentLoaded', async () => {
-            // Khởi tạo trình soạn thảo Quill với đầy đủ tính năng: Font, Size, Đậm, Nghiêng, Màu chữ, Link, Hình ảnh...
-            quill = new Quill('#editor-container', {
-                theme: 'snow',
-                modules: {
-                    toolbar: [
-                        [{ 'font': [] }, { 'size': [] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        ['link', 'image', 'clean']
-                    ]
-                }
-            });
-
-            // Tải dữ liệu hiển thị lên Web
             await loadGeneralIntro();
             await loadMembers();
-            await loadTips();
         });
 
-        // Hàm kiểm tra mật khẩu nhanh cho anh em
         function checkPassword() {
-            const pwd = prompt("Nhập mật khẩu tối cao của anh em để thao tác:");
+            const pwd = prompt("Nhập mật khẩu tối cao của anh em:");
             if (pwd === MASTER_PASSWORD) return true;
-            if (pwd !== null) alert("Sai mật khẩu! Bạn không phải anh em lên đỉnh rồi!");
+            if (pwd !== null) alert("Sai mật khẩu rồi!");
             return false;
         }
 
         // Tải giới thiệu chung
         async function loadGeneralIntro() {
-            const { data, error } = await _supabase.from('intro_chung').select('content').eq('id', 1).single();
+            const { data } = await _supabase.from('intro_chung').select('content').eq('id', 1).single();
             if (data) {
                 cachedGeneralIntro = data.content;
                 showGeneralInfo();
@@ -151,6 +132,7 @@
         }
 
         function showGeneralInfo() {
+            closeEditor();
             document.getElementById('main-view-title').innerHTML = "🏠 Giới Thiệu Chung";
             document.getElementById('main-view-content').innerHTML = cachedGeneralIntro;
             document.getElementById('member-action-buttons').style.display = 'none';
@@ -158,7 +140,7 @@
 
         // Tải danh sách thành viên
         async function loadMembers() {
-            const { data, error } = await _supabase.from('thanh_vien').select('*').order('id', { ascending: true });
+            const { data } = await _supabase.from('thanh_vien').select('*').order('id', { ascending: true });
             const listContainer = document.getElementById('member-list');
             listContainer.innerHTML = '';
             
@@ -172,25 +154,98 @@
                     `;
                 });
             } else {
-                listContainer.innerHTML = `<p class="text-xs text-gray-600 col-span-full text-center">Chưa có thành viên nào. Hãy bấm thêm ở trên!</p>`;
+                listContainer.innerHTML = `<p class="text-xs text-gray-600 col-span-full text-center">Chưa có thành viên nào.</p>`;
             }
         }
 
-        // Xem trang giới thiệu chi tiết của 1 người
+        // Xem profile chi tiết từng người
         async function viewMember(id, name) {
+            closeEditor();
             document.getElementById('main-view-content').innerHTML = "Đang tải profile...";
-            const { data, error } = await _supabase.from('thanh_vien').select('content').eq('id', id).single();
+            const { data } = await _supabase.from('thanh_vien').select('content').eq('id', id).single();
             
             document.getElementById('main-view-title').innerHTML = `👤 Thành viên: ${name}`;
-            document.getElementById('main-view-content').innerHTML = data?.content || `<p class="text-gray-500 italic">Thành viên này lười quá chưa viết gì cả, bấm sửa ở bên để viết hộ nó luôn đi bạn!</p>`;
+            document.getElementById('main-view-content').innerHTML = data?.content || `<p class="text-gray-500 italic">Thành viên này lười quá chưa viết gì cả.</p>`;
             
-            // Hiện cụm nút quản lý riêng cho Member
             const actions = document.getElementById('member-action-buttons');
             actions.style.display = 'flex';
             document.getElementById('btn-edit-member').setAttribute('onclick', `openEditor('member', ${id}, '${name}')`);
             document.getElementById('btn-delete-member').setAttribute('onclick', `deleteMember(${id}, '${name}')`);
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // KÍCH HOẠT MỞ NOTEPAD EDITOR KHÔNG DÙNG POPUP
+        async function openEditor(mode, id = null, extraData = '') {
+            if (!checkPassword()) return;
+
+            currentMode = mode;
+            currentId = id;
+
+            document.getElementById('view-mode').classList.add('hidden');
+            document.getElementById('editor-mode').classList.remove('hidden');
+
+            const textarea = document.getElementById('notepad-textarea');
+
+            if (mode === 'general') {
+                document.getElementById('editor-title').innerText = "📝 Đang sửa: Giới thiệu chung trang chủ";
+                textarea.value = cachedGeneralIntro;
+            } 
+            else if (mode === 'member') {
+                document.getElementById('editor-title').innerText = `👤 Đang sửa Profile của: ${extraData}`;
+                const { data } = await _supabase.from('thanh_vien').select('content').eq('id', id).single();
+                textarea.value = data?.content || '';
+            }
+        }
+
+        function handleCloseEditor() {
+            document.getElementById('editor-mode').classList.add('hidden');
+            document.getElementById('view-mode').classList.remove('hidden');
+        }
+        window.closeEditor = handleCloseEditor;
+
+        // TIỆN ÍCH NOTEPAD CHÈN NHANH HÌNH ẢNH HOẶC LINK
+        function insertTool(type) {
+            const textarea = document.getElementById('notepad-textarea');
+            const startPos = textarea.selectionStart;
+            const endPos = textarea.selectionEnd;
+            const text = textarea.value;
+
+            if (type === 'link') {
+                const url = prompt("Nhập địa chỉ Link liên kết (Ví dụ: https://google.com):");
+                const textDisplay = prompt("Nhập chữ hiển thị cho link đó:", "Bấm vào đây để xem");
+                if (url && textDisplay) {
+                    const tag = `<a href="${url}" target="_blank">${textDisplay}</a>`;
+                    textarea.value = text.substring(0, startPos) + tag + text.substring(endPos, text.length);
+                }
+            } 
+            else if (type === 'image') {
+                const imgUrl = prompt("Nhập link hình ảnh vào đây (Lấy link từ Imgur, Discord, UpAnh free...):");
+                if (imgUrl) {
+                    const tag = `<img src="${imgUrl}" alt="Hình ảnh nhóm" />`;
+                    textarea.value = text.substring(0, startPos) + tag + text.substring(endPos, text.length);
+                }
+            }
+            textarea.focus();
+        }
+
+        // LƯU DỮ LIỆU CHÍNH THỨC XUỐNG DATABASE
+        async function saveData() {
+            const contentValue = document.getElementById('notepad-textarea').value;
+
+            if (currentMode === 'general') {
+                const { error } = await _supabase.from('intro_chung').update({ content: contentValue }).eq('id', 1);
+                if (!error) {
+                    cachedGeneralIntro = contentValue;
+                    showGeneralInfo();
+                } else alert("Lỗi lưu trang chủ: " + error.message);
+            } 
+            else if (currentMode === 'member') {
+                const { error } = await _supabase.from('thanh_vien').update({ content: contentValue }).eq('id', currentId);
+                if (!error) {
+                    const titleText = document.getElementById('main-view-title').innerText;
+                    const name = titleText.replace("👤 Thành viên: ", "");
+                    await viewMember(currentId, name);
+                } else alert("Lỗi lưu profile: " + error.message);
+            }
         }
 
         // Thêm thành viên mới
@@ -201,156 +256,20 @@
 
             const { error } = await _supabase.from('thanh_vien').insert([{ name: name, content: '' }]);
             if (!error) {
-                alert(`Đã chào đón ${name} gia nhập hội!`);
+                alert(`Đã thêm ${name}!`);
                 await loadMembers();
-            } else {
-                alert("Lỗi khi thêm thành viên: " + error.message);
             }
         }
 
         // Xóa thành viên
         async function deleteMember(id, name) {
             if (!checkPassword()) return;
-            if (!confirm(`Bạn có chắc chắn muốn XÓA thành viên [${name}] không? Hành động này không thể hoàn tác!`)) return;
+            if (!confirm(`Xóa [${name}] nhé bạn?`)) return;
 
             const { error } = await _supabase.from('thanh_vien').delete().eq('id', id);
             if (!error) {
-                alert(`Đã tiễn biệt ${name} khỏi danh sách.`);
                 showGeneralInfo();
                 await loadMembers();
-            }
-        }
-
-        // Tải danh sách các mẹo / tips tin học
-        async function loadTips() {
-            const { data, error } = await _supabase.from('bao_nguoi_go').select('*').order('id', { ascending: false });
-            const tipsContainer = document.getElementById('tips-list');
-            tipsContainer.innerHTML = '';
-
-            if (data && data.length > 0) {
-                data.forEach(t => {
-                    tipsContainer.innerHTML += `
-                        <div class="bg-gray-900 border border-gray-800 p-5 rounded-xl space-y-4 shadow-xl hover:border-amber-500/30 transition relative group">
-                            <div class="flex justify-between items-start gap-4 border-b border-gray-800 pb-2">
-                                <div>
-                                    <h3 class="text-base font-bold text-amber-400">${t.title}</h3>
-                                    <p class="text-[11px] text-gray-500 mt-0.5">💻 Người gõ: <span class="text-gray-400 font-medium">${t.author}</span></p>
-                                </div>
-                                <div class="opacity-0 group-hover:opacity-100 transition flex gap-1.5 absolute top-4 right-4 bg-gray-900 pl-2">
-                                    <button onclick="openEditor('tip', ${t.id})" class="text-[11px] bg-gray-800 text-gray-300 hover:text-white px-2 py-0.5 rounded border border-gray-700">Sửa</button>
-                                    <button onclick="deleteTip(${t.id})" class="text-[11px] bg-red-950/40 text-red-400 hover:text-red-300 px-2 py-0.5 rounded border border-red-900">Xóa</button>
-                                </div>
-                            </div>
-                            <div class="prose prose-invert max-w-none text-sm text-gray-400 leading-relaxed">
-                                ${t.content}
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                tipsContainer.innerHTML = `<p class="text-xs text-gray-600 text-center col-span-full py-4">Chưa có mẹo nào được lưu giữ, hãy trở thành người gõ đầu tiên!</p>`;
-            }
-        }
-
-        // Xóa một mẹo viết sai
-        async function deleteTip(id) {
-            if (!checkPassword()) return;
-            if (!confirm("Xóa bài viết kiến thức này nhé anh em?")) return;
-
-            const { error } = await _supabase.from('bao_nguoi_go').delete().eq('id', id);
-            if (!error) {
-                await loadTips();
-            }
-        }
-
-        // MỞ TRÌNH SOẠN THẢO MODAL
-        async function openEditor(mode, id = null, extraData = '') {
-            if (!checkPassword()) return;
-
-            currentMode = mode;
-            currentId = id;
-            
-            const modal = document.getElementById('editor-modal');
-            const extraInputs = document.getElementById('extra-inputs');
-            quill.setContents([]); // Xóa dữ liệu cũ trong editor công cụ
-
-            extraInputs.style.display = 'none';
-
-            if (mode === 'general') {
-                document.getElementById('modal-title').innerText = "📝 Sửa Giới Thiệu Chung Trang Chủ";
-                quill.clipboard.dangerouslyPasteHTML(cachedGeneralIntro);
-            } 
-            else if (mode === 'member') {
-                document.getElementById('modal-title').innerText = `👤 Sửa Trang Giới Thiệu Của: ${extraData}`;
-                const { data } = await _supabase.from('thanh_vien').select('content').eq('id', id).single();
-                if (data?.content) quill.clipboard.dangerouslyPasteHTML(data.content);
-            } 
-            else if (mode === 'tip') {
-                document.getElementById('modal-title').innerText = id ? "⚡ Hiệu Chỉnh Mẹo Tin Học" : "🚀 Đăng Bài Mẹo / Kiến Thức Mới";
-                extraInputs.style.display = 'block';
-                
-                if (id) {
-                    const { data } = await _supabase.from('bao_nguoi_go').select('*').eq('id', id).single();
-                    if (data) {
-                        document.getElementById('input-title').value = data.title;
-                        document.getElementById('input-author').value = data.author;
-                        quill.clipboard.dangerouslyPasteHTML(data.content);
-                    }
-                } else {
-                    document.getElementById('input-title').value = '';
-                    document.getElementById('input-author').value = '';
-                }
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('editor-modal').classList.add('hidden');
-        }
-
-        // LƯU DỮ LIỆU LÊN SUPABASE DATABASE
-        async function saveData() {
-            const htmlContent = quill.root.innerHTML;
-            
-            if (currentMode === 'general') {
-                const { error } = await _supabase.from('intro_chung').update({ content: htmlContent }).eq('id', 1);
-                if (!error) {
-                    cachedGeneralIntro = htmlContent;
-                    showGeneralInfo();
-                    closeModal();
-                } else alert("Lỗi khi lưu: " + error.message);
-            } 
-            
-            else if (currentMode === 'member') {
-                const { error } = await _supabase.from('thanh_vien').update({ content: htmlContent }).eq('id', currentId);
-                if (!error) {
-                    // Lấy lại tên hiện tại để reload view
-                    const titleText = document.getElementById('main-view-title').innerText;
-                    const name = titleText.replace("👤 Thành viên: ", "");
-                    await viewMember(currentId, name);
-                    closeModal();
-                } else alert("Lỗi khi lưu: " + error.message);
-            } 
-            
-            else if (currentMode === 'tip') {
-                const title = document.getElementById('input-title').value.trim();
-                const author = document.getElementById('input-author').value.trim();
-                
-                if (!title || !author) {
-                    alert("Vui lòng gõ tiêu đề bài viết và tên người gõ!");
-                    return;
-                }
-
-                if (currentId) {
-                    // Cập nhật bài viết cũ
-                    await _supabase.from('bao_nguoi_go').update({ title, author, content: htmlContent }).eq('id', currentId);
-                } else {
-                    // Tạo bài viết hoàn toàn mới
-                    await _supabase.from('bao_nguoi_go').insert([{ title, author, content: htmlContent }]);
-                }
-                await loadTips();
-                closeModal();
             }
         }
     </script>
