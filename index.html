@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hội Anh Em Lên Đỉnh Cùng Nhau</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -15,7 +13,8 @@
         .rich-content p { margin-bottom: 0.75rem; }
         .rich-content ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 0.75rem; }
         .rich-content ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 0.75rem; }
-        .rich-content a { color: #22d3ee; text-decoration: underline; }
+        .rich-content a { color: #22d3ee; text-decoration: underline; font-weight: 600; }
+        .rich-content a:hover { color: #67e8f9; }
         .rich-content img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1rem 0; display: block; }
         /* Giữ kiểu hiển thị cho vùng soạn thảo */
         #visual-editor-box[contenteditable="true"]:empty:before {
@@ -26,7 +25,6 @@
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
 
-    <!-- HEADER -->
     <header class="border-b border-gray-800 bg-gray-900/60 backdrop-blur sticky top-0 z-40">
         <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
             <h1 onclick="showGeneralInfo()" class="text-xl md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 tracking-wider cursor-pointer hover:opacity-80 transition">
@@ -38,13 +36,10 @@
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
     <main class="max-w-5xl w-full mx-auto px-4 py-8 flex-grow space-y-12">
         
-        <!-- KHU VỰC HIỂN THỊ CHÍNH (XEM HOẶC SỬA ĐỘNG) -->
         <section class="bg-gray-900 border border-gray-800 rounded-2xl p-6 md:p-8 shadow-2xl relative">
             
-            <!-- CHẾ ĐỘ XEM NỘI DUNG -->
             <div id="view-mode">
                 <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
                     <h2 id="main-view-title" class="text-xl font-bold text-cyan-400">🏠 Giới Thiệu Chung</h2>
@@ -58,20 +53,17 @@
                 </div>
             </div>
 
-            <!-- CHẾ ĐỘ EDITOR TRỰC QUAN (VISUAL NOTEPAD) -->
             <div id="editor-mode" class="hidden space-y-4">
                 <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                     <h3 id="editor-title" class="text-lg font-bold text-amber-400">📝 Sửa nội dung trực quan</h3>
                     <button onclick="closeEditor()" class="text-sm bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-lg">Hủy</button>
                 </div>
                 
-                <!-- Ô NHẬP TIÊU ĐỀ PHỤ CHO BÀI VIẾT TIPS -->
                 <div id="tip-inputs" class="grid grid-cols-1 md:grid-cols-2 gap-3 hidden">
                     <input type="text" id="input-tip-title" placeholder="Nhập tiêu đề mẹo / tips..." class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500">
                     <input type="text" id="input-tip-author" placeholder="Tên người gõ..." class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500">
                 </div>
 
-                <!-- THANH ĐIỀU KHIỂN TRỰC QUAN (BÔI ĐEN RỒI BẤM) -->
                 <div class="flex flex-wrap gap-1 bg-gray-950 p-2 rounded-xl border border-gray-800 text-xs text-gray-300 sticky top-16 z-30">
                     <button onclick="execCmd('bold')" title="Chữ đậm" class="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 rounded font-bold border border-gray-800">B</button>
                     <button onclick="execCmd('italic')" title="Chữ nghiêng" class="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 rounded italic border border-gray-800">I</button>
@@ -79,7 +71,6 @@
                     
                     <span class="text-gray-700 px-1 self-center">|</span>
                     
-                    <!-- Thay đổi Font chữ -->
                     <select onchange="execCmd('fontName', this.value)" class="bg-gray-900 border border-gray-800 rounded px-2 py-1 text-xs focus:outline-none text-cyan-400">
                         <option value="Inter">Font mặc định</option>
                         <option value="Arial">Arial</option>
@@ -87,7 +78,6 @@
                         <option value="Times New Roman">Times New Roman</option>
                     </select>
 
-                    <!-- Thay đổi kích cỡ chữ -->
                     <select onchange="execCmd('fontSize', this.value)" class="bg-gray-900 border border-gray-800 rounded px-2 py-1 text-xs focus:outline-none text-green-400">
                         <option value="3">Cỡ vừa</option>
                         <option value="4">Cỡ lớn</option>
@@ -95,7 +85,6 @@
                         <option value="2">Cỡ nhỏ</option>
                     </select>
 
-                    <!-- Thay đổi Màu chữ -->
                     <select onchange="execCmd('foreColor', this.value)" class="bg-gray-900 border border-gray-800 rounded px-2 py-1 text-xs focus:outline-none text-amber-400">
                         <option value="#f3f4f6">Màu chữ</option>
                         <option value="#22d3ee">Xanh Cyan</option>
@@ -106,12 +95,15 @@
 
                     <span class="text-gray-700 px-1 self-center">|</span>
 
-                    <button onclick="insertLinkTool()" class="px-2.5 py-1.5 bg-gray-900 hover:bg-gray-800 rounded border border-gray-800 text-cyan-400 font-semibold">🔗 Link</button>
-                    <button onclick="insertImageTool()" class="px-2.5 py-1.5 bg-gray-900 hover:bg-gray-800 rounded border border-gray-800 text-green-400 font-semibold">🖼️ Ảnh</button>
+                    <button onclick="insertLinkTool()" class="px-2.5 py-1.5 bg-gray-900 hover:bg-gray-800 rounded border border-gray-800 text-cyan-400 font-semibold">🔗 Link Web</button>
+                    
+                    <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="uploadAndInsertImage(this)">
+                    <button onclick="document.getElementById('image-file-input').click()" id="btn-upload-img" class="px-2.5 py-1.5 bg-gray-900 hover:bg-gray-800 rounded border border-gray-800 text-green-400 font-semibold flex items-center gap-1">
+                        🖼️ Up ảnh từ máy
+                    </button>
                 </div>
 
-                <!-- KHU VỰC GÕ TRỰC QUAN (BÔI ĐEN ĐỂ CHỈNH) -->
-                <div id="visual-editor-box" contenteditable="true" placeholder="Bôi đen văn bản để đổi font, màu, in đậm nghiêng... Nhấn nút Ảnh để chèn hình bằng link." class="w-full min-h-[300px] max-h-[500px] overflow-y-auto bg-gray-950 border border-gray-800 rounded-xl p-4 text-gray-200 focus:outline-none focus:border-cyan-500 rich-content"></div>
+                <div id="visual-editor-box" contenteditable="true" placeholder="Bôi đen văn bản để đổi font, màu, in đậm nghiêng... Nhấn nút Ảnh để chọn file ảnh từ máy tính/điện thoại." class="w-full min-h-[300px] max-h-[500px] overflow-y-auto bg-gray-950 border border-gray-800 rounded-xl p-4 text-gray-200 focus:outline-none focus:border-cyan-500 rich-content"></div>
                 
                 <div class="flex justify-end gap-3">
                     <button onclick="closeEditor()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm font-semibold transition">Hủy bỏ</button>
@@ -120,7 +112,6 @@
             </div>
         </section>
 
-        <!-- DANH SÁCH THÀNH VIÊN -->
         <section class="space-y-6">
             <div class="flex justify-between items-center">
                 <h2 class="text-lg font-bold flex items-center gap-2">
@@ -131,11 +122,9 @@
                 </button>
             </div>
             <div id="member-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                <!-- Data render tự động -->
-            </div>
+                </div>
         </section>
 
-        <!-- BÁO NGƯỜI GÕ (TIPS & KHO KIẾN THỨC) -->
         <section class="space-y-6">
             <div class="flex justify-between items-center">
                 <h2 class="text-lg font-bold flex items-center gap-2">
@@ -146,21 +135,18 @@
                 </button>
             </div>
             <div id="tips-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Data render tự động -->
-            </div>
+                </div>
         </section>
     </main>
 
-    <!-- FOOTER -->
     <footer class="border-t border-gray-900 bg-gray-950 py-6 text-center text-xs text-gray-500">
         &copy; 2026 Hội Anh Em Lên Đỉnh Cùng Nhau.
     </footer>
 
-    <!-- LOGIC JAVASCRIPT XỬ LÝ -->
     <script>
         // 1. CẤU HÌNH SUPABASE (ĐIỀN URL VÀ KEY CỦA BẠN VÀO ĐÂY)
-        const SUPABASE_URL = "https://hffdlldutogxyfuojvbz.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmZmRsbGR1dG9neHlmdW9qdmJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NDU2NzQsImV4cCI6MjA5NjAyMTY3NH0.nYNqoJkMV5_MiJA1jtdsStjNG2nhCLYbxKZzc5naBEY";
+        const SUPABASE_URL = "THAY_URL_SUPABASE_CỦA_BẠN_VÀO_ĐÂY";
+        const SUPABASE_ANON_KEY = "THAY_KEY_ANON_SUPABASE_CỦA_BẠN_VÀO_ĐÂY";
         
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const MASTER_PASSWORD = "ontop123";
@@ -271,13 +257,64 @@
         }
 
         function insertLinkTool() {
-            const url = prompt("Nhập địa chỉ URL liên kết (Ví dụ: https://google.com):");
-            if (url) execCmd('createLink', url);
+            let url = prompt("Nhập địa chỉ web (Ví dụ: bio.hminhh.click hoặc google.com):");
+            if (!url) return;
+            
+            url = url.trim();
+            if (!/^https?:\/\//i.test(url)) {
+                url = "https://" + url;
+            }
+            
+            execCmd('createLink', url);
+            
+            const editorBox = document.getElementById('visual-editor-box');
+            const links = editorBox.getElementsByTagName('a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href === url || links[i].getAttribute('href') === url) {
+                    links[i].setAttribute('target', '_blank');
+                }
+            }
         }
 
-        function insertImageTool() {
-            const imgUrl = prompt("Nhập link hình ảnh (lấy từ các trang up ảnh free hoặc discord):");
-            if (imgUrl) execCmd('insertImage', imgUrl);
+        // TÍNH NĂNG ĐẨY ẢNH TRỰC TIẾP LÊN SUPABASE STORAGE
+        async function uploadAndInsertImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const btn = document.getElementById('btn-upload-img');
+            const oldText = btn.innerHTML;
+            btn.innerHTML = "⏳ Đang up ảnh...";
+            btn.disabled = true;
+
+            // Tạo tên file ngẫu nhiên để tránh trùng lặp trên server
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            try {
+                // Đẩy file lên Bucket 'anh_nhom' của Supabase
+                const { data, error } = await _supabase.storage
+                    .from('anh_nhom')
+                    .upload(filePath, file);
+
+                if (error) throw error;
+
+                // Lấy link URL công khai của ảnh vừa upload
+                const { data: publicUrlData } = _supabase.storage
+                    .from('anh_nhom')
+                    .getPublicUrl(filePath);
+
+                const publicUrl = publicUrlData.publicUrl;
+
+                // Chèn ảnh vào con trỏ chuột trong Editor
+                execCmd('insertImage', publicUrl);
+            } catch (err) {
+                alert("Lỗi up ảnh rồi bạn ơi: " + err.message);
+            } finally {
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+                input.value = ''; // Reset input file
+            }
         }
 
         // MỞ TRÌNH SOẠN THẢO TRỰC QUAN
